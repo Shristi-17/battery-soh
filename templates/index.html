@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Battery SoH Prediction</title>
+
+    <style>
+        body {
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f6fdfb;
+            color: #04AA6D;
+            font-family: Arial, sans-serif;
+            position: relative;
+        }
+
+        .container {
+            background: white;
+            padding: 30px 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            z-index: 1;
+        }
+
+        h1 {
+            margin-bottom: 25px;
+            color: #04AA6D;
+        }
+
+        form {
+            display: inline-block;
+            text-align: left;
+            font-size: 18px;
+        }
+
+        label {
+            font-weight: 600;
+            display: block;
+            margin-top: 12px;
+        }
+
+        input {
+            width: 100%;
+            padding: 8px 10px;
+            margin-top: 6px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+        }
+
+        .btn-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .btn {
+            background-color: #04AA6D;
+            border: none;
+            color: white;
+            padding: 12px 28px;
+            font-size: 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .btn:hover {
+            background-color: #028a57;
+            transform: translateY(-2px);
+        }
+
+        h2 {
+            margin-top: 25px;
+        }
+
+        p {
+            font-size: 18px;
+        }
+
+        /* Help button */
+        .help-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            text-align: center;
+        }
+
+        .help-btn {
+            background-color: #04AA6D;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        /* ✅ FIXED: centered, not full width */
+        .soh-table {
+            display: none;
+            margin: 10px auto;
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            width: 320px;
+            text-align: center;
+        }
+
+        .soh-table.show {
+            display: block;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            font-size: 15px;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        .green {
+            background-color: #d4edda;
+        }
+
+        .yellow {
+            background-color: #fff3cd;
+        }
+
+        .orange {
+            background-color: #ffe5b4;
+        }
+
+        .red {
+            background-color: #f8d7da;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Help -->
+    <div class="help-container">
+        <button class="help-btn" onclick="toggleTable()">?</button>
+        <div class="soh-table" id="sohInfo">
+            <table>
+                <tr>
+                    <th>SoH Value</th>
+                    <th>Meaning</th>
+                </tr>
+                <tr class="green">
+                    <td>1.0</td>
+                    <td>Brand new battery</td>
+                </tr>
+                <tr class="green">
+                    <td>0.9</td>
+                    <td>90% health</td>
+                </tr>
+                <tr class="yellow">
+                    <td>0.8</td>
+                    <td>80% health (aging started)</td>
+                </tr>
+                <tr class="orange">
+                    <td>0.7</td>
+                    <td>Near end-of-life</td>
+                </tr>
+                <tr class="red">
+                    <td>&lt; 0.7</td>
+                    <td>Degraded / replacement needed</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <!-- Main -->
+    <div class="container">
+        <h1>Battery State of Health Prediction</h1>
+
+        <form method="POST">
+
+            <label>Voltage (V)</label>
+            <input type="number" step="any" name="voltage" required>
+
+            <label>Current (A) <small>(negative for discharge)</small></label>
+            <input type="number" step="any" name="current" required>
+
+            <label>Temperature (°C)</label>
+            <input type="number" step="any" name="temperature" required>
+
+            <label>Time (s)</label>
+            <input type="number" step="any" name="time" required>
+
+            <label>Cycle Number</label>
+            <input type="number" step="1" name="cycle" placeholder="e.g. 50, 200, 500" required>
+
+            <div class="btn-container">
+                <button class="btn" type="submit">Predict</button>
+            </div>
+        </form>
+
+        {% if prediction is not none %}
+        <h2>Predicted Battery State of Health</h2>
+        <p><b>SoH:</b> {{ prediction }}</p>
+        {% endif %}
+
+        {% if message %}
+        <p style="color:red">{{ message }}</p>
+        {% endif %}
+    </div>
+
+    <script>
+        function toggleTable() {
+            document.getElementById("sohInfo").classList.toggle("show");
+        }
+    </script>
+
+</body>
+
+</html>
